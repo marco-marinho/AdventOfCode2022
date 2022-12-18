@@ -18,19 +18,16 @@ defmodule Solutions.Day04 do
   end
 
   def run(args) do
-      Reader.readFile(args)
+      data = Reader.readFile(args)
       |> Enum.map(fn x -> String.replace(x, "-", ",") end)
       |> Enum.map(fn x -> String.split(x, ",") end)
       |> Enum.map(fn x -> Enum.map(x, &String.to_integer/1) end)
-      |> Enum.map(&checkRedundant/1)
+
+      Enum.map(data, &checkRedundant/1)
       |> Enum.sum
       |> IO.inspect(label: "Task 01")
 
-      Reader.readFile(args)
-      |> Enum.map(fn x -> String.replace(x, "-", ",") end)
-      |> Enum.map(fn x -> String.split(x, ",") end)
-      |> Enum.map(fn x -> Enum.map(x, &String.to_integer/1) end)
-      |> Enum.map(&checkRedundantT2/1)
+      Enum.map(data, &checkRedundantT2/1)
       |> Enum.sum
       |> IO.inspect(label: "Task 02")
   end
