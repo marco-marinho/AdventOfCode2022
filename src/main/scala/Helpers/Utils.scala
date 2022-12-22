@@ -17,6 +17,7 @@ object Utils {
   }
 
   case class Point(x: Int, y: Int) {
+    def this(coords: (Int, Int)) = this(coords._1, coords._2)
     def +(other: (Int, Int)): Point = Point(x + other._1, y + other._2)
 
     def +(other: Point): Point = Point(x + other.x, y + other.y)
