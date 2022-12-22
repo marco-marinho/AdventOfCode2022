@@ -16,7 +16,7 @@ object Day14 {
     val grid2 = genGrid(lines, parameters, task2 = true)
     while(drip(grid2, parameters)){}
     println("Task 01: " + grid.countAll('o'))
-    println("Task 02: " +grid2.countAll('o'))
+    println("Task 02: " + grid2.countAll('o'))
   }
 
   private def genGrid(walls: List[List[Point]], parameters: Parameters, task2: Boolean = false): Matrix[Char] = {
