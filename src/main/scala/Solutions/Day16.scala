@@ -21,48 +21,45 @@ object Day16 {
 
     val res1 = bfs(targets, paths, nodeMap, 30).maxBy(_.flown).flown
 
-    val res = bfs(targets, paths, nodeMap, 26)
+    val res = bfs(targets, paths, nodeMap, 26).sortBy(x => -x.flown)
     var res2 = 0
-    for (leg <- res){
-      for (another <- res){
-        if (leg.flown + another.flown > res2 && Set.from(leg.visited).intersect(Set.from(another.visited)).isEmpty){
-          val buffr = leg.flown + another.flown
-          if (buffr > res2) {
-            res2 = buffr
-          }
+    var found = false
+    for (leg <- res) {
+      for (another <- res if !found) {
+        if (Set.from(leg.visited).intersect(Set.from(another.visited)).isEmpty) {
+          res2 = leg.flown + another.flown
+          found = true
         }
       }
     }
     println("Task 01: " + res1)
     println("Task 02: " + res2)
-
   }
 
   private def bfs(targets: List[String], paths: Map[(String, String), Path], nodeMap: Map[String, Node], maxTime: Int): List[State] = {
     val stateQueue = mutable.Queue[State]()
-    var bestState = Map[String, Int]()
-    stateQueue.addOne(State("AA", List(), List(), 0, 0))
-    var solutions = List[State]()
+    val bestState = mutable.Map[String, Int]()
+    stateQueue.addOne(State("AA", List(), 0, 0))
+    val solutions = mutable.ListBuffer[State]()
     while (stateQueue.nonEmpty) {
       val current = stateQueue.dequeue()
       val nextStates = current.genNextStates(targets, paths, nodeMap, maxTime)
       if (nextStates.isEmpty) {
-        solutions = current :: solutions
+        solutions.addOne(current)
       }
-      else {
-        if (!bestState.contains(current.getRepr) ||
-          (bestState.contains(current.getRepr) && bestState(current.getRepr) >= current.flown)) {
-          for (state <- nextStates) {
-            val strRepr = state.getRepr
-            if (!bestState.contains(strRepr) || bestState(strRepr) <= state.flown) {
-              bestState += (strRepr -> state.flown)
-              stateQueue.addOne(state)
-            }
-          }
+      else if (checkFeasible(current, bestState)) {
+        for (state <- nextStates if checkFeasible(state, bestState)) {
+          bestState.addOne(state.getRepr -> state.flown)
+          stateQueue.addOne(state)
         }
       }
     }
-    solutions
+
+    solutions.toList
+  }
+
+  private def checkFeasible(state: State, bestStates: mutable.Map[String, Int]): Boolean = {
+    !bestStates.contains(state.getRepr) || bestStates(state.getRepr) <= state.flown
   }
 
   private def pathFind(start: String, end: String, nodes: Map[String, Node]): Path = {
@@ -104,20 +101,18 @@ object Day16 {
 
   case class Node(name: String, flow: Int, connections: Array[String])
 
-  private case class State(position: String, visited: List[String], path: List[(String, Int)], flown: Int, minutes: Int) {
-    def getRepr: String = position + ";" + minutes + ";" + visited.sorted.mkString(";")
+  private case class State(position: String, visited: List[String], flown: Int, minutes: Int) {
+    def getRepr: String = position + ";" + visited.sorted.mkString(";")
 
     def genNextStates(targets: List[String], paths: Map[(String, String), Path], nodeMap: Map[String, Node], maxTime: Int): List[State] = {
       var states = List[State]()
-      val visitedSet = Set.from(this.visited)
       for (other <- targets) {
-        if (!visitedSet.contains(other) && other != this.position) {
+        if (other != this.position && !visited.contains(other)) {
           val nextVisited = other :: this.visited
           val distance = paths(this.position, other).dist + 1
           val nextDist = distance + this.minutes
           val newFlow = this.flown + (nodeMap(other).flow * (maxTime - nextDist))
-          val nextPath = (other, nextDist) :: path
-          val nextState = State(other, nextVisited, nextPath, newFlow, nextDist)
+          val nextState = State(other, nextVisited, newFlow, nextDist)
           if (nextDist <= maxTime) {
             states = nextState :: states
           }
