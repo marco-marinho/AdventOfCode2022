@@ -7,11 +7,10 @@ import Helpers.Utils.Point
 object Day17 {
 
   def main(args: Array[String]): Unit = {
-    println("Task 01: " + runSimulation())
-    println("Taks 02: " + runSimulation(true))
+    runSimulation()
   }
 
-  private def runSimulation(task02: Boolean = false): Long = {
+  private def runSimulation(): Unit = {
     val data = Readers.readFile("Data/Day17.txt").head.toCharArray
     val dropper = new pieceDropper
     var windIdx = 0
@@ -20,25 +19,26 @@ object Day17 {
     var states = Map[String, (Int, Int)]()
     var found = false
     var added = 0L
-    val max = if (task02) 10000 else 2022
-    while (pieces < max) {
+    while (pieces < 10000) {
       var curPiece = dropper.genPiece(getTallest(board))
       var settled = false
-      if (!found && task02) {
-        val (state, heigth) = rowMax(board)
-        val idxstr = dropper.getIdx()
-        val key = windIdx.toString + ";" + state.mkString(";") + ";" + idxstr
-        val value = (pieces, heigth)
+      if (!found) {
+        val (state, height) = rowMax(board)
+        val key = windIdx.toString + ";" + state.mkString(";") + ";" + dropper.getIdx
+        val value = (pieces, height)
         if (!states.contains(key)) states += (key -> value)
-        else {
+        else if (pieces > 2022) {
           val (opieces, oheight) = states(key)
           val diff = pieces - opieces
-          val diffhei = heigth - oheight
+          val diffhei = height - oheight
           added = ((1000000000000L - pieces) / diff) * diffhei
-          val remaining = ((1000000000000L - pieces) % diff)
-          pieces = (max - remaining).toInt
+          val remaining = (1000000000000L - pieces) % diff
+          pieces = (10000 - remaining).toInt
           found = true
         }
+      }
+      if (pieces == 2022) {
+        println("Task 01: " + board.maxBy(_.x).x)
       }
       while (!settled) {
         windIdx %= data.length
@@ -49,9 +49,11 @@ object Day17 {
         windIdx += 1
       }
       board = board ++ curPiece
+      val cutoff = getTallest(board) - 100
+      board = board.filter(_.x > cutoff)
       pieces += 1
     }
-    board.maxBy(_.x).x + added
+    println("Task 02: " + (board.maxBy(_.x).x + added))
   }
 
   private def rowMax(board: Set[Point]): (List[Int], Int) = {
@@ -61,19 +63,6 @@ object Day17 {
       res = (board.filter(_.y == i).maxBy(_.x).x - top) :: res
     }
     (res, top)
-  }
-  private def printBoard(board: Set[Point]) = {
-    var currRow = board.maxBy(_.x).x
-    while (currRow >= 1) {
-      val row = board.filter(_.x == currRow)
-      val rowPrint = Array.fill(9)('.')
-      rowPrint(0) = '|'
-      rowPrint(8) = '|'
-      row.foreach(x => rowPrint(x.y) = '#')
-      println(rowPrint.mkString(""))
-      currRow-=1
-    }
-    println("+-------+")
   }
 
   private def movePiece(piece: Set[Point], direction: Char, board: Set[Point]): (Set[Point], Boolean) = {
@@ -109,9 +98,10 @@ object Day17 {
   }
 
   private class pieceDropper() {
-    var idx = 0
+    private var idx = 0
 
-    def getIdx():String = (idx%5).toString
+    def getIdx: String = (idx % 5).toString
+
     def genPiece(top: Int): Set[Point] = {
       val x = top + 4
       idx += 1
