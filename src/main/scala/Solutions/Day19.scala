@@ -2,7 +2,7 @@ package AoC2022
 package Solutions
 
 import Helpers.Readers
-
+import scala.collection.parallel.CollectionConverters._
 import scala.collection.mutable
 
 object Day19 {
@@ -10,13 +10,12 @@ object Day19 {
   def main(args: Array[String]): Unit = {
     val data = Readers.readFile("Data/Day19.txt")
     val recipes = data.map(parse)
-
-    println("Task 01: " + recipes.zipWithIndex.map(it => simulate(it._1, 24) * it._1.idx).sum)
-    println("Task 02: " + recipes.take(3).map(simulate(_, 32)).product)
+    println("Task 01: " + recipes.zipWithIndex.par.map(it => simulate(it._1, 24) * it._1.idx).sum)
+    println("Task 02: " + recipes.take(3).par.map(simulate(_, 32)).product)
   }
 
   private def simulate(recipe: Recipe, maxTurns: Int): Int = {
-    def alpha = initialState
+    val alpha = initialState
     val queue = mutable.Queue[State]()
     queue.addOne(alpha)
     var seen = Set[State]()
@@ -25,7 +24,7 @@ object Day19 {
       val current = queue.dequeue()
       val nextStates = current.genNextStates(recipe, maxTurns)
       if (nextStates.isEmpty) {
-        val solution = current.resources.getOrElse("geode", 0) + ((maxTurns - current.turns) * current.rates.getOrElse("geode", 0))
+        val solution = current.resources("geode") + ((maxTurns - current.turns) * current.rates("geode"))
         if (solution > max) max = solution
       }
       else if (checkFeasible(current, maxTurns, max) && !seen.contains(current)) {
@@ -64,13 +63,12 @@ object Day19 {
     def genNextStates(recipe: Recipe, maxTurns: Int): List[State] = {
       var nextStates = List[State]()
       for (resource <- recipe.costs.keys if (rates(resource) < recipe.maxCosts(resource)
-        && checkWaitable(recipe.costs(resource), rates))){
+        && checkPossible(recipe.costs(resource), rates))){
         val costs = recipe.costs(resource)
         val turnsNeeded = costs.map(entry => calcTurnsNeeded(rates(entry._1), resources(entry._1), entry._2)).max
         if (turnsNeeded >= 0 && turnsNeeded + turns < maxTurns) {
           val nextRates = rates + (resource -> (rates(resource) + 1))
-          var nextResources = resources.map(it => it._1 -> (it._2 + ((turnsNeeded + 1) * rates(it._1))))
-          costs.foreach(it => nextResources += (it._1 -> (nextResources(it._1) - it._2)))
+          val nextResources = resources.map(it => it._1 -> (it._2 + ((turnsNeeded + 1) * rates(it._1)) - costs(it._1)))
           nextStates = State(turns + turnsNeeded + 1, nextResources, nextRates) :: nextStates
         }
       }
@@ -78,7 +76,7 @@ object Day19 {
     }
   }
 
-  private def checkWaitable(cost: Map[String, Int], rate: Map[String, Int]): Boolean = {
+  private def checkPossible(cost: Map[String, Int], rate: Map[String, Int]): Boolean = {
     cost.filter(it => it._2 > 0).forall(it => rate(it._1) > 0)
   }
 

@@ -7,3 +7,6 @@ lazy val root = (project in file("."))
     name := "AoC",
     idePackagePrefix := Some("AoC2022")
   )
+
+libraryDependencies +=
+  "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.4"
