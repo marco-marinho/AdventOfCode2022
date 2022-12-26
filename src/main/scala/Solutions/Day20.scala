@@ -48,8 +48,8 @@ object Day20 {
   }
 
   class Node(val value: Long) {
-    var previous: Node = null
-    var next: Node = null
+    var previous: Node = this
+    var next: Node = this
 
     override def toString: String = value.toString + " [previous = " + previous.value + " | next = " + next.value + "]"
 
