@@ -45,6 +45,10 @@ class Matrix[T:ClassTag](input: Array[Array[T]]) {
     data.foreach(x => println(x.mkString("")))
   }
 
+  override def toString: String = {
+    data.map(x => x.mkString("")).mkString("\n")
+  }
+
 }
 
 object Matrix {

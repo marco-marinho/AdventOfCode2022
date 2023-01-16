@@ -12,7 +12,7 @@ object Day21 {
       val res = parse(it)
       elements += res._1 -> res._2
     })
-    println("Task 01: "+ resolve(elements("root"), elements).toLong)
+    println("Task 01: " + resolve(elements("root"), elements).toLong)
     val target = resolve(elements("rqsg"), elements)
     val reversed = calc(elements, "wgbd", 0) < calc(elements, "wgbd", 100)
     val res = binarySearch(elements, "wgbd", target, reversed).toLong
@@ -23,7 +23,7 @@ object Day21 {
     var lower = 0.0
     var upper = 1e16
     var half = (upper + lower) / 2
-    var current = calc(elements, branchName, half).toDouble
+    var current = calc(elements, branchName, half)
     while (current != target) {
 
       if (current > target) {
@@ -61,7 +61,7 @@ object Day21 {
   private def calculate(element: Element, elements: Map[String, Element]): Double = {
     element.operation match {
       case None => throw new IllegalStateException("No information to calculate element")
-      case Some(operation) => {
+      case Some(operation) =>
         val (first, second, op) = operation
         val firstEl = resolve(elements(first), elements)
         val secondEl = resolve(elements(second), elements)
@@ -72,7 +72,6 @@ object Day21 {
           case "/" => firstEl / secondEl
           case _ => throw new IllegalStateException("Invalid operation")
         }
-      }
     }
   }
 
