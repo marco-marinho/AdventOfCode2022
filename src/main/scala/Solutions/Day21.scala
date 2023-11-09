@@ -19,7 +19,8 @@ object Day21 {
     println("Task 02: " + res)
   }
 
-  private def binarySearch(elements: Map[String, Element], branchName: String, target: Double, reversed: Boolean): Double = {
+  private def binarySearch(elements: Map[String, Element], branchName: String,
+                           target: Double, reversed: Boolean): Double = {
     var lower = 0.0
     var upper = 1e16
     var half = (upper + lower) / 2

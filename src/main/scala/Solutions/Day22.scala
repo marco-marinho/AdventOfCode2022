@@ -3,8 +3,6 @@ package Solutions
 
 import Helpers.Readers
 import Helpers.Matrix
-import Helpers.Cube
-import Helpers.Edge
 import Helpers.Utils.{splitAt, Point}
 
 
@@ -25,61 +23,17 @@ object Day22 {
       }
     ))
     val commands = commandsData.split("((?<=[RL])|(?=[RL]))").toList
-    //    val pos = grid.find('.')
-    //    var state = State(Point(pos._1, pos._2), 'R')
-    //    for (command <- commands){
-    //      state = doCommand(command, state, grid)
-    //    }
-    //    println("Task 01: " + state.Score())
-
-    val cube = new Cube(4, ' ')
-    setFace(cube, grid, 0, 0, 2)
-    setFace(cube, grid, 1, 1, 0)
-    setFace(cube, grid, 2, 1, 1)
-    setFace(cube, grid, 3, 1, 2)
-    setFace(cube, grid, 4, 2, 2)
-    setFace(cube, grid, 5, 2, 3)
-
-
-    cube.setConnection(0, 3, Edge.Bottom, Edge.Top, false)
-    cube.setConnection(0, 1, Edge.Top, Edge.Top, true)
-    cube.setConnection(0, 2, Edge.Left, Edge.Top, false)
-    cube.setConnection(0, 5, Edge.Right, Edge.Right, true)
-
-    cube.setConnection(0, 3, Edge.Bottom, Edge.Top, false)
-    cube.setConnection(0, 1, Edge.Top, Edge.Top, true)
-    cube.setConnection(0, 2, Edge.Left, Edge.Top, false)
-    cube.setConnection(0, 5, Edge.Right, Edge.Right, true)
-
-    cube.setConnection(0, 3, Edge.Bottom, Edge.Top, false)
-    cube.setConnection(0, 1, Edge.Top, Edge.Top, true)
-    cube.setConnection(0, 2, Edge.Left, Edge.Top, false)
-    cube.setConnection(0, 5, Edge.Right, Edge.Right, true)
-
-    cube.setConnection(0, 3, Edge.Bottom, Edge.Top, false)
-    cube.setConnection(0, 1, Edge.Top, Edge.Top, true)
-    cube.setConnection(0, 2, Edge.Left, Edge.Top, false)
-    cube.setConnection(0, 5, Edge.Right, Edge.Right, true)
-
-    cube.setConnection(0, 3, Edge.Bottom, Edge.Top, false)
-    cube.setConnection(0, 1, Edge.Top, Edge.Top, true)
-    cube.setConnection(0, 2, Edge.Left, Edge.Top, false)
-    cube.setConnection(0, 5, Edge.Right, Edge.Right, true)
-
-    cube.setConnection(0, 3, Edge.Bottom, Edge.Top, false)
-    cube.setConnection(0, 1, Edge.Top, Edge.Top, true)
-    cube.setConnection(0, 2, Edge.Left, Edge.Top, false)
-    cube.setConnection(0, 5, Edge.Right, Edge.Right, true)
-
-  }
-
-  def setFace(cube: Cube[Char], grid: Matrix[Char], face: Int, row: Int, col: Int): Unit = {
-    val size = cube.size
-    for (i <- 0 until size) {
-      for (j <- 0 until size) {
-        cube(face, i, j) = grid(row * size + i, col * size + j)
-      }
+    val pos = grid.find('.')
+    var state = State(Point(pos._1, pos._2), 'R')
+    for (command <- commands) {
+      state = doCommand(command, state, grid)
     }
+    println("Task 01: " + state.Score())
+
+    val face_size = Math.sqrt((grid.ncols * grid.nrows - grid.countAll(' ')) / 6).toInt
+    val creases = findOuterCreases(grid)
+    println(face_size)
+    println(creases)
   }
 
   private def doCommand(command: String, state: State, grid: Matrix[Char]): State = {
@@ -91,6 +45,26 @@ object Day22 {
       }
       current
     }
+  }
+
+  private def findOuterCreases(grid: Matrix[Char]): List[(Point, Int)] = {
+    var creases = List[Point]()
+    var quadrants = List[Int]()
+    val offsets = List[Point](Point(1, 1), Point(0, 1), Point(1, 0), Point(0, 0))
+    val quadrantsIndex = List[Int](4, 1, 3, 2)
+    for (row <- 0 until grid.nrows - 1) {
+      for (col <- 0 until grid.ncols - 1) {
+        val elements = List[Char](grid(row, col), grid(row + 1, col),
+          grid(row, col + 1), grid(row + 1, col + 1))
+        val empty_count = elements.count(_ == ' ')
+        if (empty_count == 1) {
+          val offset = offsets(elements.indexOf(' '))
+          creases = (Point(row, col) + offset) :: creases
+          quadrants = quadrantsIndex(elements.indexOf(' ')) :: quadrants
+        }
+      }
+    }
+    creases.zip(quadrants)
   }
 
   case class State(position: Point, direction: Char) {
