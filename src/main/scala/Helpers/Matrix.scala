@@ -2,6 +2,7 @@ package AoC2022
 package Helpers
 
 import scala.reflect.ClassTag
+import Utils.Point
 
 class Matrix[T:ClassTag](input: Array[Array[T]]) {
 
@@ -9,12 +10,21 @@ class Matrix[T:ClassTag](input: Array[Array[T]]) {
   val nrows: Int = data.length
   val ncols: Int = data(0).length
   def apply(row: Int, col: Int):T = data(row)(col)
+  def apply(point: Point):T = data(point.x)(point.y)
   def update(row: Int, col: Int, value: T): Unit = data(row)(col) = value
   def find(element: T): (Int, Int) = {
     val search = data.map(_.indexOf(element))
     val row = search.indexWhere(_ != -1)
     val col = search.filter(_ != -1).head
     (row, col)
+  }
+
+  def coordinateValid(x: Int, y: Int): Boolean = {
+    x >= 0 && y >= 0 && x < nrows && y < ncols
+  }
+
+  def coordinateValid(point: Point): Boolean = {
+    coordinateValid(point.x, point.y)
   }
 
   def findAll(element: T): List[(Int, Int)] = {
