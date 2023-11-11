@@ -1,9 +1,8 @@
 package AoC2022
 package Solutions
 
-import Helpers.Readers
-import Helpers.Matrix
-import Helpers.Utils.{splitAt, Point}
+import Helpers.{Matrix, Readers}
+import Helpers.Utils.{Point, splitAt}
 
 
 object Day22 {
