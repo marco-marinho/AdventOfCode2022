@@ -1,8 +1,7 @@
 package AoC2022
 package Solutions
 
-import Helpers.Readers
-import Helpers.Utils
+import Helpers.{Readers, Utils}
 
 object Day01 {
     def main(args: Array[String]): Unit = {

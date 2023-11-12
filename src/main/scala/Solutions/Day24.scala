@@ -7,7 +7,6 @@ import scala.collection.mutable
 
 object Day24 {
     def main(args: Array[String]): Unit = {
-
         val data = Readers.readFile("Data/Day24.txt")
         val x_max = data.size - 2
         val y_max = data.head.length - 2

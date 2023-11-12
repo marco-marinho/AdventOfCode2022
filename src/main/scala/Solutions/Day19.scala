@@ -46,6 +46,8 @@ object Day19 {
     private def initialState = State(0, resourceDict,
         resourceDict + ("ore" -> 1))
 
+    private def resourceDict: Map[String, Int] = Map[String, Int]("ore" -> 0, "clay" -> 0, "obsidian" -> 0, "geode" -> 0)
+
     def parse(line: String): Recipe = {
         val args = ("""\d+""".r findAllIn line).toList.map(_.toInt)
         val oreCosts = resourceDict + ("ore" -> args(1))
@@ -54,8 +56,6 @@ object Day19 {
         val geodeCosts = resourceDict ++ Map("ore" -> args(5), "obsidian" -> args(6))
         Recipe(args.head, Map("ore" -> oreCosts, "clay" -> clayCosts, "obsidian" -> obsidianCosts, "geode" -> geodeCosts))
     }
-
-    private def resourceDict: Map[String, Int] = Map[String, Int]("ore" -> 0, "clay" -> 0, "obsidian" -> 0, "geode" -> 0)
 
     private def checkPossible(cost: Map[String, Int], rate: Map[String, Int]): Boolean = {
         cost.filter(it => it._2 > 0).forall(it => rate(it._1) > 0)
