@@ -27,18 +27,18 @@ object Day23 {
 
         def possibleMovements(elfs: Set[Elf]): Movement = {
             var north, west, east, south = true
-            if (elfs.contains(Elf(x - 1, y))
-              || elfs.contains(Elf(x - 1, y + 1))
-              || elfs.contains(Elf(x - 1, y - 1))) north = false
-            if (elfs.contains(Elf(x + 1, y))
-              || elfs.contains(Elf(x + 1, y + 1))
-              || elfs.contains(Elf(x + 1, y - 1))) south = false
-            if (elfs.contains(Elf(x - 1, y - 1))
-              || elfs.contains(Elf(x, y - 1))
-              || elfs.contains(Elf(x + 1, y - 1))) west = false
-            if (elfs.contains(Elf(x - 1, y + 1))
-              || elfs.contains(Elf(x, y + 1))
-              || elfs.contains(Elf(x + 1, y + 1))) east = false
+            val n = elfs.contains(Elf(x - 1, y))
+            val ne = elfs.contains(Elf(x - 1, y + 1))
+            val nw = elfs.contains(Elf(x - 1, y - 1))
+            val s = elfs.contains(Elf(x + 1, y))
+            val se = elfs.contains(Elf(x + 1, y + 1))
+            val sw = elfs.contains(Elf(x + 1, y - 1))
+            val e = elfs.contains(Elf(x, y + 1))
+            val w = elfs.contains(Elf(x, y - 1))
+            if (n || ne || nw) north = false
+            if (s || se || sw) south = false
+            if (w || sw || nw) west = false
+            if (e || se || ne) east = false
             Movement(north, south, east, west)
         }
 
@@ -81,8 +81,7 @@ object Day23 {
                 val movements = elf.possibleMovements(elfs)
                 if (movements.noNeighbours() || movements.cantMove()) {
                     next += elf
-                }
-                else {
+                } else {
                     var found = false
                     for (i <- round until round + 4 if !found) {
                         val movement = priorities(i % 4)
@@ -100,8 +99,7 @@ object Day23 {
                 return false
             }
             for (proposal <- proposals) {
-                if (proposal_count(proposal._2) == 1) next += proposal._2
-                else next += proposal._1
+                if (proposal_count(proposal._2) == 1) next += proposal._2 else next += proposal._1
             }
             round += 1
             elfs = next
