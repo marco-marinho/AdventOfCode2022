@@ -30,9 +30,9 @@ object Day24 {
           .map(pair => Blizzard(input._2, pair._2, pair._1))
     }
 
-    def dfs(initialState: (Int, Int, Int), blizzards: mutable.Map[Int, List[Blizzard]],
-            blizzardSets: mutable.Map[Int, Set[(Int, Int)]],
-            x_max: Int, y_max: Int, target: (Int, Int)): (Int, Int, Int) = {
+    private def dfs(initialState: (Int, Int, Int), blizzards: mutable.Map[Int, List[Blizzard]],
+                    blizzardSets: mutable.Map[Int, Set[(Int, Int)]],
+                    x_max: Int, y_max: Int, target: (Int, Int)): (Int, Int, Int) = {
         val seen = mutable.Set[(Int, Int, Int)]()
         val toCheck = mutable.Queue[(Int, Int, Int)](initialState)
         val steps = Array[(Int, Int)]((1, 0), (-1, 0), (0, 1), (0, -1), (0, 0))
